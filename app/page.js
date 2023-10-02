@@ -1,7 +1,7 @@
 'use client' // 👈 use it here
 
 import { useState } from 'react';
-import { TextField } from './components/text-field';
+import { DynamicField } from './components/dynamic-field';
 
 function Header({step}) {
   return <p>{`This is form ${step}`}</p>
@@ -122,7 +122,8 @@ export default function Home() {
   // State
   const [step, setStep] = useState(0);
 
-  function handleOnClick() {
+  // Functions
+  function handleOnClickNext() {
     if (step >= totalSteps - 1) {
       setStep(0);
       return;
@@ -131,27 +132,58 @@ export default function Home() {
     setStep(step + 1)
   }
 
+  function handleOnClickBack() {
+    setStep(step - 1)
+  }
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+    <main className="flex min-h-screen flex-col items-center justify-between p-4">
       <div className="z-10 max-w-5xl w-full items-center justify-around font-mono text-sm lg:flex">
-        <div>
-          <Header step={step} />
+        {/* Thumbnail Container */}
+        <div className='flex justify-center gap-4 my-8'>
+          {data.map((obj, index) => (
+            <div
+              key={`thumbnail ${index}`} 
+              className={`w-8 h-8 border border-black rounded-full flex ${step === index && 'bg-black text-white'}`}
+            >
+              <p className='m-auto'>{index + 1}</p>
+            </div>
+          ))
+          }
         </div>
-        <div>
-            <h2>{data[step].title}</h2>
+        {/* Form Container */}
+        <div className='flex flex-col gap-4 p-4 bg-white rounded-xl'>
+            <h2 className='text-xl'>{data[step].title}</h2>
             <p>{data[step].description}</p>
-            <div>
+            <div className='flex flex-col gap-4'>
               {data[step].fields.map((field, index) => (
-                <TextField
+                <DynamicField
                   key={index}
+                  type={field.type}
                   label={field.label} 
                   placeholder={field.placeholder} 
-                  isMandatory={field.isMandatory} 
+                  isMandatory={field.isMandatory}
+                  fieldData={field.options}
                 />
               ))
               }
             </div>
-            <button onClick={handleOnClick}>{step === 3 ? 'Complete' : 'Next Step'}</button>
+            <div className='w-full fixed bottom-0 left-0 flex justify-between p-4'>
+              {step > 0 && 
+                <button 
+                  onClick={handleOnClickBack}
+                  className='p-4 border border-transparent rounded-lg cursor-pointer'
+                >
+                  Go Back
+                </button>
+              }
+              <button 
+                onClick={handleOnClickNext}
+                className='p-4 border border-black rounded-lg cursor-pointer ml-auto'
+              >
+                {step === 3 ? 'Complete' : 'Next Step'}
+              </button>
+            </div>
         </div>
       </div>
     </main>
