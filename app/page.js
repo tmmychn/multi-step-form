@@ -1,6 +1,6 @@
 'use client' // 👈 use it here
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DynamicField } from './components/dynamic-field';
 
 function Header({step}) {
@@ -18,18 +18,21 @@ export default function Home() {
         {
           type: 'text',
           label: 'Name',
+          name: 'name',
           placeholder: 'e.g. Stephen King',
           isMandatory: true,
         },
         {
           type: 'text',
           label: 'Email Address',
+          name: 'email',
           placeholder: 'e.g. stephenking@lorem.ipsum',
           isMandatory: true,
         },
         {
           type: 'text',
           label: 'Phone Number',
+          name: 'phoneNumber',
           placeholder: 'e.g. 0112345678',
           isMandatory: true,
         }
@@ -42,6 +45,7 @@ export default function Home() {
       fields: [
         {
           type: 'planSelection',
+          name: 'plan',
           isMandatory: true,
           options: {
             monthly: [
@@ -86,6 +90,7 @@ export default function Home() {
       fields: [
         {
           type: 'checkbox',
+          name: 'addOns',
           isMandatory: true,
           options: [
             {
@@ -121,8 +126,30 @@ export default function Home() {
 
   // State
   const [step, setStep] = useState(0);
+  const [formData, setFormData] = useState({})
+
+  useEffect(() => {
+    initFormData();
+  }, [])
+
 
   // Functions
+  function initFormData() {
+    const tempFormData = {};
+    
+    data.forEach((step) => {
+      if (step.fields.length > 0) {
+        step.fields.forEach((field) => {
+          if (field.name) {
+            tempFormData[field.name] = '';
+          }
+        })
+      }
+    })
+
+    setFormData(tempFormData);
+  }
+
   function handleOnClickNext() {
     if (step >= totalSteps - 1) {
       setStep(0);
@@ -137,22 +164,27 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-4">
-      <div className="z-10 max-w-5xl w-full items-center justify-around font-mono text-sm lg:flex">
+    <main className="flex min-h-screen md:w-3/4 md:m-auto flex-col items-center justify-between md:justify-center p-4">
+      <div className="md:h-[75vh] z-10 max-w-5xl w-full items-center md:items-start justify-around font-mono text-sm lg:flex">
         {/* Thumbnail Container */}
-        <div className='flex justify-center gap-4 my-8'>
+        <div className='flex md:flex-col justify-center gap-4 my-8 md:m-0'>
           {data.map((obj, index) => (
-            <div
-              key={`thumbnail ${index}`} 
-              className={`w-8 h-8 border border-black rounded-full flex ${step === index && 'bg-black text-white'}`}
-            >
-              <p className='m-auto'>{index + 1}</p>
+            <div key={`thumbnail ${index}`} className='flex items-center gap-4'>
+              <div
+                className={`w-8 h-8 border border-black rounded-full flex ${step === index && 'bg-black text-white'}`}
+              >
+                <p className='m-auto'>{index + 1}</p>
+              </div>
+              <div className='uppercase hidden md:block'>
+                <p>step {index + 1}</p>
+                <p className='font-bold'>{obj.thumbnail}</p>
+              </div>
             </div>
           ))
           }
         </div>
         {/* Form Container */}
-        <div className='flex flex-col gap-4 p-4 bg-white rounded-xl'>
+        <div className='flex flex-col gap-4 p-4 bg-white rounded-xl md:h-full md:w-1/2'>
             <h2 className='text-xl'>{data[step].title}</h2>
             <p>{data[step].description}</p>
             <div className='flex flex-col gap-4'>
@@ -168,7 +200,7 @@ export default function Home() {
               ))
               }
             </div>
-            <div className='w-full fixed bottom-0 left-0 flex justify-between p-4'>
+            <div className='w-full fixed md:relative bottom-0 left-0 flex justify-between p-4 md:p-0 md:mt-auto'>
               {step > 0 && 
                 <button 
                   onClick={handleOnClickBack}
